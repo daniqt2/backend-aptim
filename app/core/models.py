@@ -1,6 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.conf import settings
 
+# from core.utils ge
+from django.db.models.signals import pre_save, post_save
+from .utils import unique_slugify
 # Create your models here.
 
 class UserManager(BaseUserManager):
@@ -24,13 +28,117 @@ class UserManager(BaseUserManager):
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(max_length=255,unique=True)
-    name = models.CharField(max_length=255)
-    username = models.CharField(max_length=255)
+    name = models.CharField(max_length=30)
+    last = models.CharField(max_length=30)
+    username = models.CharField(max_length=20)
+    identif = models.CharField(max_length=16, default = 'none')
     is_active = models.BooleanField(default=True)
     is_apmaster = models.BooleanField(default=False)
     is_staff= models.BooleanField(default=False)
+    club = models.ForeignKey(
+        'Club',
+        related_name="athletes",
+        on_delete= models.CASCADE,
+        null=True,
+        blank= True
+    )
     
     objects = UserManager()
     USERNAME_FIELD = 'email'
+    
+class Club(models.Model):
+    name = models.CharField(max_length=30)
+    description =  models.TextField(max_length=200)
+    
+    def __str__(self):
+        return self.name
+
+class ClubGroup(models.Model):
+    club = models.ForeignKey(
+        'Club',
+        on_delete= models.CASCADE
+    )
+    name = models.CharField(max_length=30)
+    description =  models.CharField(max_length=200)
+    
+    def __str__(self):
+        return self.name
+    
+class Channel(models.Model):
+    club = models.ForeignKey(
+        'Club',
+        related_name="channels",
+        on_delete= models.CASCADE
+    )
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name="author",
+        on_delete=models.SET_NULL,
+        null=True, 
+    )
+    slug = models.SlugField(max_length=255, unique=True)
+    name = models.CharField(max_length=30)
+    description =  models.CharField(max_length=200)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+        
+    def save(self, **kwargs):
+        slug_str = "%s %s" % (self.name, self.club)
+        unique_slugify(self, slug_str)
+        super(Channel, self).save()
+
+    def __str__(self):
+        return self.name
+    
+class Topic(models.Model):
+    channel = models.ForeignKey(
+        'Channel',
+        related_name="topics",
+        on_delete= models.CASCADE
+    )
+    name = models.CharField(max_length=30)
+    description =  models.CharField(max_length=200)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return self.name
+    
+class Thread(models.Model):
+    topic = models.ForeignKey(
+        'Topic',
+        related_name="threads",
+        on_delete= models.CASCADE
+    )
+    name = models.CharField(max_length=30)
+    text =  models.TextField(blank="false")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return self.name
+    
+class Comment(models.Model):
+    thread = models.ForeignKey(
+        'Thread',
+        related_name="comments",
+        on_delete= models.CASCADE
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+    )
+    text =  models.TextField(blank="false")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+class Event(models.Model):
+    chanel = models.ForeignKey(
+        'Channel',
+        on_delete= models.CASCADE
+    )
+    name = models.CharField(max_length=30)
+    description =  models.CharField(max_length=400)
+    date= models.DateTimeField(auto_now=False, auto_now_add=False)
     
     

@@ -10,7 +10,8 @@ class UserAdmin(BaseUserAdmin):
     list_display = ['email','name']
     fieldsets = (
         (None,{'fields': ('email', 'password')}),
-        (_('Personal Info'),{'fields':('name',)}),
+        (_('Personal Info'),{'fields':('name','last')}),
+        (_('Identification Info'), {'fields':('username','identif','club')}),
         (
             _('Permissions'),
             {'fields' : ('is_active','is_staff','is_superuser', 'is_apmaster')}
@@ -25,3 +26,10 @@ class UserAdmin(BaseUserAdmin):
     )
     
 admin.site.register(models.CustomUser, UserAdmin)
+admin.site.register(models.Club)
+admin.site.register(models.ClubGroup)
+admin.site.register(models.Channel)
+admin.site.register(models.Topic)
+admin.site.register(models.Thread)
+admin.site.register(models.Comment)
+admin.site.register(models.Event)
