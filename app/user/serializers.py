@@ -6,12 +6,13 @@ from rest_framework import serializers
 class UserSerializer(serializers.ModelSerializer):
     """user object serializer"""
     created_at =serializers.SerializerMethodField(read_only=True)
+    
     def get_created_at(self , instance):
         return instance.created_at.strftime("%Y-%m-%d %H:%M:%S")
     
     class Meta:
         model = get_user_model()
-        fields = ('email','password','name')
+        fields = ('email','password','name','last','username','created_at')
         extra_kwargs = {'password':{'write_only': True, 'min_length': 8}}
         
     def create(self, validated_data):
