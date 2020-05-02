@@ -8,11 +8,15 @@ app_name = 'forum'
 
 router = DefaultRouter()
 router.register(r"channels", views.ChannelViewSet)
+router.register(r"topics", views.TopicViewSet)
+router.register(r"threads", views.ThreadViewSet)
+router.register(r"comments", views.CommentViewSet)
+router.register(r"events", views.EventViewSet)
+router.register(r"clubs", views.ClubViewSet)
+router.register(r"clubgroups", views.ClubGroupViewSet)
 
 
 urlpatterns = [
-    # path('channel/', views.ChannelView.as_view(), name='channel'),
     path('', include(router.urls)),
-    # path('channel/<int:pk>/', snippet_highlight, name='snippet-highlight'),
 ]
 
