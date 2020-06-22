@@ -59,16 +59,18 @@ MIDDLEWARE = [
 
 CORS_ORIGIN_WHITELIST = (
   'localhost:8080',
+  'localhost:8080/home'
   'localhost',
 )
 
-ALLOWED_HOSTS = [
-'localhost',
-'localhost:8000',
-'localhost:8080',
-'127.0.0.1',
-'http://127.0.0.1:8000/'
-]
+# ALLOWED_HOSTS = [
+# 'localhost',
+# 'localhost:8000',
+# 'localhost:8080',
+# '127.0.0.1',
+# 'http://127.0.0.1:8000/'
+# ]
+
 CSRF_COOKIE_NAME = "XSRF-TOKEN"
 
 ROOT_URLCONF = 'aptimBackend.urls'

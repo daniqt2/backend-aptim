@@ -1,18 +1,37 @@
 from django.contrib.auth import get_user_model , authenticate
 from django.utils.translation import ugettext_lazy as _
+# from forum.serializers import ClubSerializer
 
 from rest_framework import serializers
+
+
+class UserUSerializer(serializers.ModelSerializer):
+    """user object serializer"""
+    password = serializers.StringRelatedField(read_only=True)
+    email = serializers.StringRelatedField(read_only=True)
+    name = serializers.StringRelatedField(read_only=True)
+    last =password = serializers.StringRelatedField(read_only=True)
+    username = serializers.StringRelatedField(read_only=True)
+    # club_name = serializers.SerializerMethodField(read_only=True)
+    class Meta:
+        model = get_user_model()
+        fields = ('email','password','name','last','username','created_at','club','is_active','is_apmaster','id','group')
+        extra_kwargs = {'password':{'write_only': True, 'min_length': 8}}
 
 class UserSerializer(serializers.ModelSerializer):
     """user object serializer"""
     created_at =serializers.SerializerMethodField(read_only=True)
+    # club_name = serializers.SerializerMethodField(read_only=True)
+    
+    def get_club_name(self, instance):
+        return instance.club
     
     def get_created_at(self , instance):
         return instance.created_at.strftime("%Y-%m-%d %H:%M:%S")
     
     class Meta:
         model = get_user_model()
-        fields = ('email','password','name','last','username','created_at')
+        fields = ('email','password','name','last','username','created_at','club','is_active','is_apmaster','id','group','number')
         extra_kwargs = {'password':{'write_only': True, 'min_length': 8}}
         
     def create(self, validated_data):

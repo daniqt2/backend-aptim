@@ -37,6 +37,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_staff= models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    number = models.CharField(max_length=9, null=True,
+        blank= True)
     club = models.ForeignKey(
         'Club',
         related_name="members",
@@ -44,7 +46,20 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         null=True,
         blank= True
     )
-    
+    group = models.ForeignKey(
+        'ClubGroup',
+        related_name="gmembers",
+        on_delete= models.CASCADE,
+        null=True,
+        blank= True
+    )
+    event = models.ForeignKey(
+        'Event',
+        related_name="attendees",
+        on_delete= models.CASCADE,
+        null=True,
+        blank= True
+    )
     objects = UserManager()
     USERNAME_FIELD = 'email'
     
@@ -67,6 +82,8 @@ class ClubGroup(models.Model):
     club = models.ForeignKey(
         'Club',
         related_name="groups",
+        null=True,
+        blank= True,
         on_delete= models.CASCADE
     )
     name = models.CharField(max_length=30)
@@ -76,7 +93,7 @@ class ClubGroup(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     def save(self, **kwargs):
-        slug_str = "%s %s" % (self.club, self.name)
+        slug_str = "%s %s" % (self.name, self.description)
         unique_slugify(self, slug_str)
         super(ClubGroup, self).save()
     
@@ -87,6 +104,8 @@ class Channel(models.Model):
     club = models.ForeignKey(
         'Club',
         related_name="channels",
+        null=True,
+        blank= True,
         on_delete= models.CASCADE
     )
     author = models.ForeignKey(
@@ -100,12 +119,13 @@ class Channel(models.Model):
     description =  models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
         
     def save(self, **kwargs):
-        slug_str = "%s %s" % (self.name, self.club)
+        slug_str = "%s %s" % (self.name, self.author)
         unique_slugify(self, slug_str)
         super(Channel, self).save()
-
+        
     def __str__(self):
         return self.name
     
@@ -140,7 +160,15 @@ class Thread(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     slug = models.SlugField(max_length=255, unique=True)
-    
+    creator = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name="creator",
+        on_delete=models.SET_NULL,
+        default=None,
+        null=True, 
+    )
+    likes =models.IntegerField(null=True,
+        blank=True)
     def save(self, **kwargs):
         slug_str = "%s %s" % (self.topic, self.name)
         unique_slugify(self, slug_str)
@@ -153,20 +181,23 @@ class Comment(models.Model):
     thread = models.ForeignKey(
         'Thread',
         related_name="comments",
+        null=True,
         on_delete= models.CASCADE
     )
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
+        related_name="comment_author",
+        on_delete=models.SET_NULL,
+        default=None,
+        null=True,
+        blank=True
     )
     text =  models.TextField(blank="false")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     slug = models.SlugField(max_length=255, unique=True)
-    votes = models.ManyToManyField(
-         settings.AUTH_USER_MODEL,
-         related_name="votes"
-    )
+    votes = models.IntegerField(null=True,
+        blank=True)
     
     def save(self, **kwargs):
         slug_str = "%s %s" % (self.thread, self.user)
@@ -174,21 +205,35 @@ class Comment(models.Model):
         super(Comment, self).save()
     
 class Event(models.Model):
+    EVENT_TYPES = (
+    ("C", "Competition"),
+    ("T", "Training"),
+    ("E", "Event"),
+    )
     club = models.ForeignKey(
         'Club',
         related_name="events",
+        null=True,
+        blank= True,
         on_delete= models.CASCADE
     )
-    name = models.CharField(max_length=30)
+    title = models.CharField(max_length=30)
+    location = models.CharField(max_length=100)
     description =  models.CharField(max_length=400)
     date= models.DateTimeField(auto_now=False, auto_now_add=False)
     slug = models.SlugField(max_length=255, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    event_type = models.CharField(max_length=9,
+                  choices=EVENT_TYPES,
+                  default="C")
     
     def save(self, **kwargs):
-        slug_str = "%s %s" % (self.club, self.name)
+        slug_str = "%s %s" % (self.title, self.description)
         unique_slugify(self, slug_str)
         super(Event, self).save()
+    
+    def __str__(self):
+        return self.name
     
     
