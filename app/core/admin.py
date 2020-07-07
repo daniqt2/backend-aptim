@@ -11,12 +11,14 @@ class UserAdmin(BaseUserAdmin):
     fieldsets = (
         (None,{'fields': ('email', 'password')}),
         (_('Personal Info'),{'fields':('name','last')}),
-        (_('Identification Info'), {'fields':('username','identif','club')}),
+        (_('Identification Info'), {'fields':('username','identif','club','groups')}),
         (
             _('Permissions'),
             {'fields' : ('is_active','is_staff','is_superuser', 'is_apmaster')}
         ),
-        (_('Important dates'), {'fields':('last_login',)})
+        (_('Important dates'), {'fields':('last_login',)}),
+        (_('Images'), {'fields':('image',)})
+        # (_('Requests'), {'fields':('requests',)})
     )
     add_fieldsets = (
         (None, {

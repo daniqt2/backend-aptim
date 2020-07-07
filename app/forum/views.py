@@ -6,7 +6,7 @@ from forum.serializers import ChannelSerializer
 from user.serializers import UserUSerializer,UserSerializer
 from core.models import Channel , Topic , Thread , Comment ,Event, ClubGroup ,Club, CustomUser
 from .serializers import ChannelSerializer ,TopicSerializer,ThreadSerializer,\
-    CommentSerializer,EventSerializer , ClubGroupSerializer ,ClubSerializer
+    CommentSerializer
 
 from .signals import add_slug
 from .permissions import isAuthorRO
@@ -27,6 +27,7 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     lookup_field = "id"
     serializer_class = UserUSerializer
+    
 
 # class UserViewSet(viewsets.ModelViewSet):
 #     queryset = CustomUser.objects.filter()
@@ -36,26 +37,26 @@ class UserViewSet(viewsets.ModelViewSet):
 #      return CustomUser.objects.filter(id=id)
 
 
-class ClubViewSet(viewsets.ModelViewSet):
-    queryset = Club.objects.all()
-    lookup_field = "id"
-    serializer_class = ClubSerializer
+# class ClubViewSet(viewsets.ModelViewSet):
+#     queryset = Club.objects.all()
+#     lookup_field = "id"
+#     serializer_class = ClubSerializer
     
     
-class ClubGroupViewSet(viewsets.ModelViewSet):
-    queryset = ClubGroup.objects.all()
-    lookup_field = "slug"
-    serializer_class = ClubGroupSerializer
+# class ClubGroupViewSet(viewsets.ModelViewSet):
+#     queryset = ClubGroup.objects.all()
+#     lookup_field = "slug"
+#     serializer_class = ClubGroupSerializer
     
-    # def perform_create(self,serializer):
-    #     serializer.save(club=self.request.user.club)
+#     # def perform_create(self,serializer):
+#     #     serializer.save(club=self.request.user.club)
     
-class FocusGroupsViewSet(viewsets.ModelViewSet):
-    queryset = ClubGroup.objects.filter()
-    serializer_class = ClubGroupSerializer
-    def get_queryset(self):
-     club = self.request.GET.get('club')
-     return ClubGroup.objects.filter(club__pk=club).order_by('created_at')
+# class FocusGroupsViewSet(viewsets.ModelViewSet):
+#     queryset = ClubGroup.objects.filter()
+#     serializer_class = ClubGroupSerializer
+#     def get_queryset(self):
+#      club = self.request.GET.get('club')
+#      return ClubGroup.objects.filter(club__pk=club).order_by('created_at')
 
 
 class ChannelViewSet(viewsets.ModelViewSet):
@@ -110,17 +111,32 @@ class FocusCommentViewSet(viewsets.ModelViewSet):
      thread = self.request.GET.get('thread')
      return Comment.objects.filter(thread__pk=thread).order_by('created_at')
     
-class EventViewSet(viewsets.ModelViewSet):
-    queryset = Event.objects.all()
-    lookup_field = "slug"
-    serializer_class = EventSerializer
+# class EventViewSet(viewsets.ModelViewSet):
+#     queryset = Event.objects.all()
+#     lookup_field = "slug"
+#     serializer_class = EventSerializer
     
-class FocusEventViewSet(viewsets.ModelViewSet):
-    queryset = Event.objects.filter()
-    serializer_class = EventSerializer
-    def get_queryset(self):
-     club = self.request.GET.get('club')
-     return Event.objects.filter(club__pk=club).order_by('created_at')
+# class FocusEventViewSet(viewsets.ModelViewSet):
+#     queryset = Event.objects.filter()
+#     serializer_class = EventSerializer
+#     def get_queryset(self):
+#      club = self.request.GET.get('club')
+#      return Event.objects.filter(club__pk=club).order_by('created_at')
+ 
+# class ClubThreads(viewsets.ModelViewSet):
+#     queryset = Thread.objects.filter()
+#     serializer_class = ThreadSerializer
+#     def get_queryset(self):
+#      club = self.request.GET.get('club')
+#      return Thread.objects.filter(club__pk=club).order_by('created_at')
+ 
+# class EventAttendanceView(viewsets.ModelViewSet):
+#     queryset = EventAttendance.objects.filter()
+#     serializer_class = EventAttendanceSerializer
+    
+#     def get_queryset(self):
+#      user = self.request.GET.get('user')
+#      return EventAttendance.objects.filter(person__pk=user).order_by('created_at')
     
     
 

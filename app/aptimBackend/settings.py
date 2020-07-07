@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'corsheaders',
     
     'core',
-    'user'
+    'user',
+    'forum'
 ]
 
 MIDDLEWARE = [
@@ -61,6 +62,7 @@ CORS_ORIGIN_WHITELIST = (
   'localhost:8080',
   'localhost:8080/home'
   'localhost',
+  '127.0.0.1:8080/ '
 )
 
 # ALLOWED_HOSTS = [
@@ -145,5 +147,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+MEDIA_URL = '/media/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 AUTH_USER_MODEL = 'core.CustomUser'

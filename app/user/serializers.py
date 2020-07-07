@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model , authenticate
 from django.utils.translation import ugettext_lazy as _
+# import club.serializers.RequestSerializer
 # from forum.serializers import ClubSerializer
 
 from rest_framework import serializers
@@ -10,15 +11,18 @@ class UserUSerializer(serializers.ModelSerializer):
     password = serializers.StringRelatedField(read_only=True)
     email = serializers.StringRelatedField(read_only=True)
     name = serializers.StringRelatedField(read_only=True)
-    last =password = serializers.StringRelatedField(read_only=True)
+    last = serializers.StringRelatedField(read_only=True)
     username = serializers.StringRelatedField(read_only=True)
+    # requests = RequestSerializer(many=False,required=False)
     # club_name = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = get_user_model()
-        fields = ('email','password','name','last','username','created_at','club','is_active','is_apmaster','id','group')
+        fields = ('email','password','name','last','username','created_at','club','is_active','is_apmaster','id','sub_groups','image','on_boarding','events')
+        # fields = '__all__'
         extra_kwargs = {'password':{'write_only': True, 'min_length': 8}}
 
 class UserSerializer(serializers.ModelSerializer):
+    # requests = RequestSerializer(many=False,required=False)
     """user object serializer"""
     created_at =serializers.SerializerMethodField(read_only=True)
     # club_name = serializers.SerializerMethodField(read_only=True)
@@ -31,7 +35,8 @@ class UserSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = get_user_model()
-        fields = ('email','password','name','last','username','created_at','club','is_active','is_apmaster','id','group','number')
+        fields = ('email','password','name','last','username','created_at','club','is_active','is_apmaster','id','sub_groups','number','image','on_boarding','events')
+        # fields = '__all__'
         extra_kwargs = {'password':{'write_only': True, 'min_length': 8}}
         
     def create(self, validated_data):

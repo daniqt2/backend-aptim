@@ -2,6 +2,8 @@ from django.urls import path ,include
 from . import views
 from rest_framework import renderers
 from rest_framework.routers import DefaultRouter
+from django.conf.urls.static import static
+from django.conf import settings
 
 
 app_name = 'forum'
@@ -15,15 +17,11 @@ router.register(r"threads", views.ThreadViewSet)
 router.register(r"topicThreads", views.FocusThreadViewSet)
 router.register(r"comments", views.CommentViewSet)
 router.register(r"threadComments", views.FocusCommentViewSet)
-router.register(r"events", views.EventViewSet)
-router.register(r"clubEvents", views.FocusEventViewSet)
-router.register(r"clubs", views.ClubViewSet)
-router.register(r"clubGroups", views.FocusGroupsViewSet)
-router.register(r"clubgroups", views.ClubGroupViewSet)
 router.register(r"users", views.UserViewSet)
+
 
 
 urlpatterns = [
     path('', include(router.urls)),
-]
+] 
 

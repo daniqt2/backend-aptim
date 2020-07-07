@@ -31,12 +31,16 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=30)
     last = models.CharField(max_length=30)
     username = models.CharField(max_length=20)
+    image = models.ImageField(upload_to='profile_image',blank=True)
     identif = models.CharField(max_length=16, default = 'none')
     is_active = models.BooleanField(default=True)
     is_apmaster = models.BooleanField(default=False)
     is_staff= models.BooleanField(default=False)
+    on_boarding = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    events =  models.ManyToManyField('Event',blank=True,through='EventAttendance', related_name='user_events')
+    # requests =  models.ManyToManyField('Request',blank=True,through='MembershipRequest', related_name='user_requests')
     number = models.CharField(max_length=9, null=True,
         blank= True)
     club = models.ForeignKey(
@@ -46,20 +50,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         null=True,
         blank= True
     )
-    group = models.ForeignKey(
-        'ClubGroup',
-        related_name="gmembers",
-        on_delete= models.CASCADE,
-        null=True,
-        blank= True
-    )
-    event = models.ForeignKey(
-        'Event',
-        related_name="attendees",
-        on_delete= models.CASCADE,
-        null=True,
-        blank= True
-    )
+    sub_groups =  models.ManyToManyField('ClubGroup',blank=True,through='GroupMembership', related_name='member_g')
     objects = UserManager()
     USERNAME_FIELD = 'email'
     
@@ -69,6 +60,7 @@ class Club(models.Model):
     slug = models.SlugField(max_length=255, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    # requests =  models.ManyToManyField('Request',blank=True,through='MembershipRequest', related_name='club_requests')
     
     def save(self, **kwargs):
         slug_str = "%s %s" % (self.name, 'aptim')
@@ -76,7 +68,7 @@ class Club(models.Model):
         super(Club, self).save()
     
     def __str__(self):
-        return self.name
+        return str(self.name)
 
 class ClubGroup(models.Model):
     club = models.ForeignKey(
@@ -91,6 +83,7 @@ class ClubGroup(models.Model):
     slug = models.SlugField(max_length=255, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    members = models.ManyToManyField('CustomUser',blank=True,through='GroupMembership', related_name='group_members')
     
     def save(self, **kwargs):
         slug_str = "%s %s" % (self.name, self.description)
@@ -155,8 +148,8 @@ class Thread(models.Model):
         related_name="threads",
         on_delete= models.CASCADE
     )
-    name = models.CharField(max_length=30)
     text =  models.TextField(blank="false")
+    name= models.CharField(max_length=30,blank=True,null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     slug = models.SlugField(max_length=255, unique=True)
@@ -166,6 +159,13 @@ class Thread(models.Model):
         on_delete=models.SET_NULL,
         default=None,
         null=True, 
+    )
+    club = models.ForeignKey(
+        'Club',
+        related_name="club_threads",
+        null=True,
+        blank= True,
+        on_delete= models.CASCADE
     )
     likes =models.IntegerField(null=True,
         blank=True)
@@ -217,9 +217,12 @@ class Event(models.Model):
         blank= True,
         on_delete= models.CASCADE
     )
+    # GROUPS MANY TO MANY
     title = models.CharField(max_length=30)
+    name = models.CharField(max_length=30)
     location = models.CharField(max_length=100)
     description =  models.CharField(max_length=400)
+    attending =  models.ManyToManyField('CustomUser',blank=True, through='EventAttendance', related_name='event_attendants')
     date= models.DateTimeField(auto_now=False, auto_now_add=False)
     slug = models.SlugField(max_length=255, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -234,6 +237,69 @@ class Event(models.Model):
         super(Event, self).save()
     
     def __str__(self):
-        return self.name
+        return self.title
+    
+class Request(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name="user_request",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+    club = models.ForeignKey(
+        'Club',
+        related_name="club_requests",
+        null=True,
+        blank= True,
+        on_delete= models.CASCADE
+    )
+    STATUS = (
+    ("A", "Aproved"),
+    ("P", "Pending"),
+    ("D", "Declined"),
+    )
+    created_at = models.DateTimeField(auto_now_add=True,blank=True)
+    updated_at = models.DateTimeField(auto_now=True,blank=True)
+    status = models.CharField(max_length=9,
+                  choices=STATUS,
+                  default="P")
+    
+    def save(self, **kwargs):
+        super(Request, self).save()
+    
+    def __str__(self):
+        return str(self.id)
+    
+class MembershipRequest(models.Model):
+    person = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    club = models.ForeignKey(Club, on_delete=models.CASCADE)
+    request = models.ForeignKey(Request, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    
+    def __str__(self):
+        return self.id
+    
+class GroupMembership(models.Model):
+    person = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    group = models.ForeignKey(ClubGroup, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    
+    def __str__(self):
+        return self.id
+    
+class EventAttendance(models.Model):
+    person = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return self.id
+    
     
     
