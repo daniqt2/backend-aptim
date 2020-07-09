@@ -63,6 +63,9 @@ class Club(models.Model):
     # requests =  models.ManyToManyField('Request',blank=True,through='MembershipRequest', related_name='club_requests')
     
     def save(self, **kwargs):
+        print(self)
+        print("kwargs")
+        print(kwargs)
         slug_str = "%s %s" % (self.name, 'aptim')
         unique_slugify(self, slug_str)
         super(Club, self).save()
@@ -242,14 +245,14 @@ class Event(models.Model):
 class Request(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        related_name="user_request",
+        related_name="requests",
         on_delete=models.SET_NULL,
         null=True,
         blank=True
     )
     club = models.ForeignKey(
         'Club',
-        related_name="club_requests",
+        related_name="requests",
         null=True,
         blank= True,
         on_delete= models.CASCADE

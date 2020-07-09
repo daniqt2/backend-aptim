@@ -18,9 +18,11 @@ router.register(r"eventAttendance", views.EventAttendanceView)
 router.register(r"clubRequests", views.ClubMembershipRequestView)
 router.register(r"userRequests", views.UserMembershipRequestView)
 router.register(r"userGroups", views.GroupMembershipView)
-router.register(r"request", views.RequestView)
+router.register(r"requests", views.RequestView)
+router.register(r"request", views.ClubRequestView)
 router.register(r"userRequest", views.UserRequestView)
-router.register(r"clubRequest", views.ClubRequestView)
+# router.register(r"userRequest", views.UserRequestView)
+# router.register(r"clubRequest", views.ClubRequestView)
 
 
 

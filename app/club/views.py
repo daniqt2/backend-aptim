@@ -103,3 +103,11 @@ class ClubRequestView(viewsets.ModelViewSet):
     def get_queryset(self):
      club = self.request.GET.get('club')
      return Request.objects.filter(club__pk=club).order_by('created_at')
+ 
+class UserRequestView(viewsets.ModelViewSet):
+    queryset = Request.objects.filter()
+    serializer_class = RequestSerializer
+    
+    def get_queryset(self):
+     user = self.request.GET.get('user')
+     return Request.objects.filter(user__pk=user).order_by('created_at')

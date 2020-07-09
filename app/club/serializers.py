@@ -58,9 +58,9 @@ class ClubSerializer(serializers.ModelSerializer):
     created_at =serializers.SerializerMethodField(read_only=True)
     channels = ChannelSerializer(many=True,required=False)
     members = UserSerializer(many=True,required=False)
+    requests = RequestSerializer(many=True,required=False)
     groups = ClubGroupSerializer(many=True,required=False)
     events = EventSerializer(many=True,required=False)
-    requests = RequestSerializer(many=True,required=False)
     
     def get_created_at(self , instance):
         return instance.created_at.strftime("%Y-%m-%d %H:%M:%S")
